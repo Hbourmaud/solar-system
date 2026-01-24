@@ -33,6 +33,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visualization")
     UStaticMeshComponent* MeshComponent;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visualization")
+    FLinearColor OrbitColor = FLinearColor::White;
+
     UFUNCTION(BlueprintCallable, Category = "Celestial Body")
     void CalculateMassFromGravity();
 

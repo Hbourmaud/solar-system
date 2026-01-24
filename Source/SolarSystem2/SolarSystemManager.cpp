@@ -275,16 +275,7 @@ void ASolarySystemManager::SimulateOrbits()
 			*OrbitPoints.Last().ToString());
 
 		if (drawOrbits) {
-			FColor OrbitColor = FColor::White;
-			FString BodyNameLower = Body->BodyName.ToLower();
-
-			if (BodyNameLower.Contains("mercury")) OrbitColor = FColor(169, 169, 169); // Gray
-			else if (BodyNameLower.Contains("venus")) OrbitColor = FColor(255, 198, 73); // Yellow-Orange
-			else if (BodyNameLower.Contains("earth")) OrbitColor = FColor(100, 149, 237); // Blue
-			else if (BodyNameLower.Contains("moon")) OrbitColor = FColor(192, 192, 192); // Light Gray
-			else if (BodyNameLower.Contains("mars")) OrbitColor = FColor(255, 99, 71); // Red
-			else if (BodyNameLower.Contains("jupiter")) OrbitColor = FColor(255, 165, 0); // Orange
-			else if (BodyNameLower.Contains("saturn")) OrbitColor = FColor(238, 232, 170); // Pale Yellow
+			FColor OrbitColor = Body->OrbitColor.ToFColor(true);
 
 			for (int32 k = 0; k < OrbitPoints.Num() - 1; ++k) {
 				DrawDebugLine(
@@ -301,7 +292,6 @@ void ASolarySystemManager::SimulateOrbits()
 
 			DrawDebugSphere(GetWorld(), OrbitPoints[0], 15.0f, 8, FColor::Green, false, 0.016f);
 			DrawDebugSphere(GetWorld(), OrbitPoints.Last(), 15.0f, 8, FColor::Red, false, 0.016f);
-
 			DrawDebugSphere(GetWorld(), CentralBody->GetActorLocation(), 20.0f, 12, FColor::Yellow, false, 0.016f);
 		}
 
