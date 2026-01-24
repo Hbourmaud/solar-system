@@ -13,6 +13,9 @@ public:
     ACelestialBody();
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Celestial Body")
+    FString BodyName = "Unnamed";
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Celestial Body")
     float Mass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Celestial Body")
