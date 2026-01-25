@@ -6,8 +6,11 @@ ACelestialBody::ACelestialBody()
 {
     PrimaryActorTick.bCanEverTick = true;
 
+    ProceduralMesh = CreateDefaultSubobject<UProceduralPlanetGenerator>(TEXT("ProceduralMesh"));
+    RootComponent = ProceduralMesh;
+
     MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-    RootComponent = MeshComponent;
+    MeshComponent->SetupAttachment(RootComponent);
 
     Mass = 1.0f;
     Radius = 100.0f;
@@ -25,6 +28,40 @@ void ACelestialBody::BeginPlay()
     }
 
     CurrentVelocity = InitialVelocity;
+
+    if (UseProcedural && ProceduralMesh) {
+		RegeneratePlanet();
+		MeshComponent->SetVisibility(false);
+
+        if (PlanetMaterial) {
+            ProceduralMesh->SetMaterial(0, PlanetMaterial);
+            UE_LOG(LogTemp, Log, TEXT("Applied custom material to %s"), *BodyName);
+        } else {
+            UMaterial* DefaultMaterial = LoadObject<UMaterial>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial"));
+            if (DefaultMaterial) {
+                UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(DefaultMaterial, this);
+                if (DynamicMaterial) {
+                    DynamicMaterial->SetVectorParameterValue(FName("Color"), OrbitColor);
+                    ProceduralMesh->SetMaterial(0, DynamicMaterial);
+                }
+            }
+        }
+
+    } else if (MeshComponent) {
+        ProceduralMesh->SetVisibility(false);
+    }
+}
+
+void ACelestialBody::RegeneratePlanet()
+{
+    if (ProceduralMesh) {
+        ProceduralMesh->Radius = Radius * VisualScale;
+        ProceduralMesh->Subdivisions = PlanetSubdivisions;
+        ProceduralMesh->GeneratePlanet();
+
+        UE_LOG(LogTemp, Log, TEXT("Regenerated procedural planet: %s with Radius=%.2f, Subdivisions=%d"),
+            *BodyName, Radius, PlanetSubdivisions);
+    }
 }
 
 void ACelestialBody::Tick(float DeltaTime)

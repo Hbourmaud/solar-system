@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ProceduralPlanetGenerator.h"
 #include "CelestialBody.generated.h"
 
 UCLASS()
@@ -34,7 +35,25 @@ public:
     UStaticMeshComponent* MeshComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visualization")
+    UProceduralPlanetGenerator* ProceduralMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visualization")
     FLinearColor OrbitColor = FLinearColor::White;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visualization")
+    UMaterialInterface* PlanetMaterial;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visualization")
+    float VisualScale = 100.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Procedural Generation")
+    int32 PlanetSubdivisions = 3;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Procedural Generation")
+    bool UseProcedural = true;
+
+    UFUNCTION(BlueprintCallable, Category = "Celestial Body")
+    void RegeneratePlanet();
 
     UFUNCTION(BlueprintCallable, Category = "Celestial Body")
     void CalculateMassFromGravity();
