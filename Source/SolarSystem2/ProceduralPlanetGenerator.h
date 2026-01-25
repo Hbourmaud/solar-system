@@ -43,6 +43,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terrain Noise")
 	int32 NoiseSeed = 91;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terrain Color")
+	bool ApplyBiomeColors = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terrain Color")
+	FLinearColor LowlandColor = FLinearColor(0.2f, 0.3f, 0.8f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terrain Color")
+	FLinearColor HighlandColor = FLinearColor(0.3f, 0.6f, 0.2f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Terrain Color")
+	FLinearColor PeakColor = FLinearColor(0.9f, 0.9f, 0.9f);
+
 	UFUNCTION(BlueprintCallable, Category = "Planet Generation")
 	void GeneratePlanet();
 
