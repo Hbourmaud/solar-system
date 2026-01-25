@@ -2,6 +2,8 @@
 #include "DrawDebugHelpers.h"
 #include <Kismet/GameplayStatics.h>
 
+// TODO: see the logs comment
+
 ASolarySystemManager::ASolarySystemManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -44,8 +46,8 @@ void ASolarySystemManager::BeginPlay()
 				float ExpectedSpeed = FMath::Sqrt(G * Sun->Mass / Distance);
 				float SpeedRatio = CurrentSpeed / ExpectedSpeed;
 
-				UE_LOG(LogTemp, Error, TEXT("ORBIT CHECK - %s: Distance=%.2f, CurrentSpeed=%.4f, ExpectedSpeed=%.4f, Ratio=%.4f, SunMass=%.2e"),
-					*Body->BodyName, Distance, CurrentSpeed, ExpectedSpeed, SpeedRatio, Sun->Mass);
+				//UE_LOG(LogTemp, Error, TEXT("ORBIT CHECK - %s: Distance=%.2f, CurrentSpeed=%.4f, ExpectedSpeed=%.4f, Ratio=%.4f, SunMass=%.2e"),
+					//*Body->BodyName, Distance, CurrentSpeed, ExpectedSpeed, SpeedRatio, Sun->Mass);
 			}
 		}
 	}
@@ -105,6 +107,8 @@ void ASolarySystemManager::UpdateGravitationalForces(float DeltaTime)
 
 void ASolarySystemManager::SimulateOrbits()
 {
+	// TODO: refacto for better perf
+
 	for (ACelestialBody* Body : CelestialBodies) {
 		if (!Body || Body->CurrentVelocity.SizeSquared() < 0.01f) {
 			continue;
@@ -128,7 +132,7 @@ void ASolarySystemManager::SimulateOrbits()
 			continue;
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("Simulating orbit for %s around %s"), *Body->BodyName, *CentralBody->BodyName);
+		//UE_LOG(LogTemp, Log, TEXT("Simulating orbit for %s around %s"), *Body->BodyName, *CentralBody->BodyName);
 
 		float Distance = FVector::Dist(OriginalPosition, CentralBody->GetActorLocation());
 		float Speed = Body->CurrentVelocity.Size();
@@ -146,8 +150,8 @@ void ASolarySystemManager::SimulateOrbits()
 
 		DynamicTimeStep = FMath::Clamp(DynamicTimeStep, 0.1f, 50.0f);
 
-		UE_LOG(LogTemp, Log, TEXT("Orbit calc for %s: Dist=%.2f, Speed=%.2f, Period=%.2f, Steps=%d, TimeStep=%.2f"),
-			*Body->BodyName, Distance, Speed, EstimatePeriod, DynamicSteps, DynamicTimeStep);
+		//UE_LOG(LogTemp, Log, TEXT("Orbit calc for %s: Dist=%.2f, Speed=%.2f, Period=%.2f, Steps=%d, TimeStep=%.2f"),
+			//*Body->BodyName, Distance, Speed, EstimatePeriod, DynamicSteps, DynamicTimeStep);
 
 		TArray<FVector> TempPositions;
 		TArray<FVector> TempVelocities;
@@ -165,7 +169,7 @@ void ASolarySystemManager::SimulateOrbits()
 		OrbitPoints.Add(OriginalPosition);
 
 		int32 BodyIndex = CelestialBodies.IndexOfByKey(Body);
-		bool bOrbitUnstable = false;
+		bool OrbitUnstable = false;
 
 		for (int32 step = 0; step < DynamicSteps; ++step) {
 			TArray<FVector> Accelerations;
@@ -245,15 +249,15 @@ void ASolarySystemManager::SimulateOrbits()
 			}
 
 			if (TempPositions[BodyIndex].Size() > Distance * 1000.0f) {
-				UE_LOG(LogTemp, Error, TEXT("Orbit simulation unstable for %s at step %d - position exploded"), *Body->BodyName, step);
-				bOrbitUnstable = true;
+				//UE_LOG(LogTemp, Error, TEXT("Orbit simulation unstable for %s at step %d - position exploded"), *Body->BodyName, step);
+				OrbitUnstable = true;
 				break;
 			}
 
 			OrbitPoints.Add(TempPositions[BodyIndex]);
 		}
 
-		if (bOrbitUnstable) {
+		if (OrbitUnstable) {
 			continue;
 		}
 
@@ -265,14 +269,14 @@ void ASolarySystemManager::SimulateOrbits()
 		float ExpectedCircumference = 2.0f * PI * Distance;
 		float DistanceRatio = TotalDistance / ExpectedCircumference;
 
-		UE_LOG(LogTemp, Warning, TEXT("Orbit for %s: Points=%d, TotalDist=%.2f, ExpectedCirc=%.2f, Ratio=%.2f, Start=%s, End=%s"),
-			*Body->BodyName,
-			OrbitPoints.Num(),
-			TotalDistance,
-			ExpectedCircumference,
-			DistanceRatio,
-			*OrbitPoints[0].ToString(),
-			*OrbitPoints.Last().ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Orbit for %s: Points=%d, TotalDist=%.2f, ExpectedCirc=%.2f, Ratio=%.2f, Start=%s, End=%s"),
+		//	*Body->BodyName,
+		//	OrbitPoints.Num(),
+		//	TotalDistance,
+		//	ExpectedCircumference,
+		//	DistanceRatio,
+		//	*OrbitPoints[0].ToString(),
+		//	*OrbitPoints.Last().ToString());
 
 		if (drawOrbits) {
 			FColor OrbitColor = Body->OrbitColor.ToFColor(true);

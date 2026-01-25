@@ -8,6 +8,8 @@ UProceduralPlanetGenerator::UProceduralPlanetGenerator(const FObjectInitializer&
 
 void UProceduralPlanetGenerator::GeneratePlanet()
 {
+	NoiseGenerator = MakeUnique<FPerlinNoise>(NoiseSeed);
+
 	Vertices.Empty();
 	Triangles.Empty();
 	Normals.Empty();
@@ -18,6 +20,10 @@ void UProceduralPlanetGenerator::GeneratePlanet()
 	GenerateIcosahedron();
 	SubdivideMesh(Subdivisions);
 	NormalizeVertices();
+
+	if (ApplyNoise) {
+		ApplyNoiseToVertices();
+	}
 
 	CalculateNormals();
 	CalculateUVs();
@@ -36,10 +42,35 @@ void UProceduralPlanetGenerator::GeneratePlanet()
 	SetVisibility(true);
 	SetHiddenInGame(false);
 
-	UE_LOG(LogTemp, Log, TEXT("Generated planet with %d vertices and %d triangles"),
-		Vertices.Num(), Triangles.Num() / 3);
+	UE_LOG(LogTemp, Log, TEXT("Generated planet with %d vertices and %d triangles (Noise: %s)"),
+		Vertices.Num(), Triangles.Num() / 3, ApplyNoise ? TEXT("ON") : TEXT("OFF"));
+}
 
-	UE_LOG(LogTemp, Log, TEXT("Mesh bounds: %s"), *GetLocalBounds().GetBox().ToString());
+void UProceduralPlanetGenerator::ApplyNoiseToVertices()
+{
+	if (!NoiseGenerator.IsValid()) {
+		return;
+	}
+
+	for (int32 i = 0; i < Vertices.Num(); i++) {
+		FVector Point = Vertices[i].GetSafeNormal();
+
+		float NoiseValue = NoiseGenerator->FractalNoise2D(
+			Point.X * NoiseScale,
+			Point.Y * NoiseScale,
+			NoiseOctaves,
+			NoisePersistence,
+			NoiseLacunarity
+		);
+
+		float HeightOffset = (NoiseValue + 1.0f) * 0.5f;
+		float FinalRadius = Radius * (1.0f + HeightOffset * NoiseHeightMultiplier);
+
+		Vertices[i] = Point * FinalRadius;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Applied noise to %d vertices (Scale=%.2f, Height=%.2f, Octaves=%d)"),
+		Vertices.Num(), NoiseScale, NoiseHeightMultiplier, NoiseOctaves);
 }
 
 void UProceduralPlanetGenerator::GenerateIcosahedron()
