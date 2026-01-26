@@ -14,43 +14,39 @@ void FPerlinNoise::InitializePermutationTable(int32 Seed)
 {
 	PermutationTable.SetNum(512);
 
-	// TODO: rename
-	TArray<int32> P;
-	P.SetNum(256);
+	TArray<int32> BasePermutation;
+	BasePermutation.SetNum(256);
 
 	for (int32 i = 0; i < 256; ++i)	{
-		P[i] = i;
+		BasePermutation[i] = i;
 	}
 
-	// TODO : see this 
+	// Fisher - Yates shuffle algorithm
 	FRandomStream RandomStream(Seed);
 	for (int32 i = 255; i > 0; i--) {
 		int32 SwapIndex = RandomStream.RandRange(0, i);
 
-		int32 Temp = P[i];
-		P[i] = P[SwapIndex];
-		P[SwapIndex] = Temp;
+		int32 Temp = BasePermutation[i];
+		BasePermutation[i] = BasePermutation[SwapIndex];
+		BasePermutation[SwapIndex] = Temp;
 	}
 
 	for (int32 i = 0; i < 256; i++)	{
-		PermutationTable[i] = P[i];
-		PermutationTable[256 + i] = P[i];
+		PermutationTable[i] = BasePermutation[i];
+		PermutationTable[256 + i] = BasePermutation[i];
 	}
 }
 
-// TODO : explain this
 float FPerlinNoise::Fade(float t)
 {
 	return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
 }
 
-// TODO : explain this
 float FPerlinNoise::Lerp(float t, float A, float B)
 {
 	return A + t * (B - A);
 }
 
-// TODO : explain this
 float FPerlinNoise::Grad(int32 Hash, float X, float Y)
 {
 	int32 H = Hash & 7;
@@ -82,6 +78,7 @@ float FPerlinNoise::Noise2D(float X, float Y) const
 	return Lerp(V, X1, X2);
 }
 
+// Creates more natural-looking terrain
 float FPerlinNoise::FractalNoise2D(float X, float Y, int32 Octaves, float Persistence, float Lacunarity) const
 {
 	float Total = 0.0f;

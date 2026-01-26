@@ -20,6 +20,9 @@ public:
 	float TimeScale = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	bool detailedLogs = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	bool drawOrbits = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")

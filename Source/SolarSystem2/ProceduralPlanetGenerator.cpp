@@ -152,15 +152,14 @@ void UProceduralPlanetGenerator::SubdivideMesh(int32 SubdivisionLevel)
 			int32 LocalPointB = Triangles[i + 1];
 			int32 LocalPointC = Triangles[i + 2];
 
-			// TODO: rename
-			int32 A = GetMiddlePoint(LocalPointA, LocalPointB, MiddlePointCache);
-			int32 B = GetMiddlePoint(LocalPointB, LocalPointC, MiddlePointCache);
-			int32 C = GetMiddlePoint(LocalPointC, LocalPointA, MiddlePointCache);
+			int32 MidAB = GetMiddlePoint(LocalPointA, LocalPointB, MiddlePointCache);
+			int32 MidBC = GetMiddlePoint(LocalPointB, LocalPointC, MiddlePointCache);
+			int32 MidCA = GetMiddlePoint(LocalPointC, LocalPointA, MiddlePointCache);
 
-			NewTriangles.Append({ LocalPointA, A, C });
-			NewTriangles.Append({ LocalPointB, B, A });
-			NewTriangles.Append({ LocalPointC, C, B });
-			NewTriangles.Append({ A, B, C });
+			NewTriangles.Append({ LocalPointA, MidAB, MidCA });
+			NewTriangles.Append({ LocalPointB, MidBC, MidAB });
+			NewTriangles.Append({ LocalPointC, MidCA, MidBC });
+			NewTriangles.Append({ MidAB, MidBC, MidCA });
 		}
 
 		Triangles = MoveTemp(NewTriangles);
@@ -193,26 +192,25 @@ void UProceduralPlanetGenerator::CalculateNormals()
 		}
 
 		for (int32 i = 0; i < Triangles.Num(); i += 3) {
-			// TODO: rename
-			int32 I1 = Triangles[i];
-			int32 I2 = Triangles[i + 1];
-			int32 I3 = Triangles[i + 2];
+			int32 VertexIndexA = Triangles[i];
+			int32 VertexIndexB = Triangles[i + 1];
+			int32 VertexIndexC = Triangles[i + 2];
 
-			FVector V1 = Vertices[I1];
-			FVector V2 = Vertices[I2];
-			FVector V3 = Vertices[I3];
+			FVector VertexA = Vertices[VertexIndexA];
+			FVector VertexB = Vertices[VertexIndexB];
+			FVector VertexC = Vertices[VertexIndexC];
 
-			FVector Edge1 = V2 - V1;
-			FVector Edge2 = V3 - V1;
+			FVector Edge1 = VertexB - VertexA;
+			FVector Edge2 = VertexC - VertexA;
 			FVector FaceNormal = FVector::CrossProduct(Edge1, Edge2).GetSafeNormal();
 
-			Normals[I1] += FaceNormal;
-			Normals[I2] += FaceNormal;
-			Normals[I3] += FaceNormal;
+			Normals[VertexIndexA] += FaceNormal;
+			Normals[VertexIndexB] += FaceNormal;
+			Normals[VertexIndexC] += FaceNormal;
 
-			NormalCount[I1]++;
-			NormalCount[I2]++;
-			NormalCount[I3]++;
+			NormalCount[VertexIndexA]++;
+			NormalCount[VertexIndexB]++;
+			NormalCount[VertexIndexC]++;
 		}
 
 		for (int32 i = 0; i < Normals.Num(); i++) {
